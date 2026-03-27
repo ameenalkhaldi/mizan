@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mizan"
+version = "0.1.0"
+description = "Mizan — Arabic Grammatical Analysis Engine. Deterministic i'rab using morphological lookup and classical grammar decision trees."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+authors = [
+    { name = "Ameen Alkhaldi" },
+]
+keywords = ["arabic", "nlp", "morphology", "grammar", "irab", "إعراب", "صرف", "نحو", "buckwalter", "mizan"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+
+    "Natural Language :: Arabic",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+dependencies = [
+    "pyaramorph>=0.2",
+    "mcp>=1.26",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+api = ["fastapi", "uvicorn", "anthropic"]
+
+[project.urls]
+Repository = "https://github.com/ameenalkhaldi/mizan"
+
+[project.scripts]
+mizan-server = "mizan.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

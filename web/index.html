@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إعراب — تحليل صرفي عربي</title>
+<style>
+  :root {
+    --bg: #fafafa; --surface: #fff; --border: #e0e0e0;
+    --primary: #1a5276; --primary-light: #2980b9; --text: #2c3e50;
+    --muted: #7f8c8d; --accent: #27ae60; --warn: #e74c3c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  header {
+    background: var(--primary); color: #fff; padding: 1.2rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  header h1 { font-size: 1.5rem; font-weight: 600; }
+  header small { opacity: 0.7; font-size: 0.85rem; }
+  .lang-toggle {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; padding: 0.4rem 0.9rem; border-radius: 6px; cursor: pointer;
+    font-size: 0.85rem; font-family: inherit; transition: background 0.2s;
+  }
+  .lang-toggle:hover { background: rgba(255,255,255,0.25); }
+  .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem; }
+  .tab {
+    padding: 0.7rem 1.5rem; cursor: pointer; border: none; background: none;
+    font-size: 1rem; color: var(--muted); font-family: inherit;
+    border-bottom: 3px solid transparent; transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Input area */
+  .input-row { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+  .input-row input {
+    flex: 1; padding: 0.75rem 1rem; font-size: 1.1rem; border: 2px solid var(--border);
+    border-radius: 8px; font-family: inherit; direction: rtl;
+  }
+  .input-row input:focus { outline: none; border-color: var(--primary-light); }
+  .btn {
+    padding: 0.75rem 1.5rem; background: var(--primary); color: #fff; border: none;
+    border-radius: 8px; font-size: 1rem; cursor: pointer; font-family: inherit;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: var(--primary-light); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Results table */
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th {
+    background: var(--primary); color: #fff; padding: 0.6rem 0.8rem;
+    font-weight: 500; font-size: 0.9rem;
+  }
+  [dir="rtl"] th { text-align: right; }
+  [dir="ltr"] th { text-align: left; }
+  td {
+    padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border);
+    font-size: 0.95rem; vertical-align: top;
+  }
+  tr:hover td { background: #f0f7ff; }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.2rem; margin-bottom: 0.75rem;
+  }
+  .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .card .field { display: inline-block; margin-inline-end: 1.5rem; margin-bottom: 0.3rem; }
+  .card .label { color: var(--muted); font-size: 0.85rem; }
+  .card .value { font-weight: 500; }
+  .badge {
+    display: inline-block; padding: 0.15rem 0.6rem; border-radius: 12px;
+    font-size: 0.8rem; font-weight: 500;
+  }
+  .badge-qabas { background: #d5f5e3; color: #1e8449; }
+  .badge-heuristic { background: #fdebd0; color: #b9770e; }
+  .badge-trans { background: #d6eaf8; color: #1a5276; }
+  .badge-intrans { background: #fadbd8; color: #922b21; }
+  .badge-passive { background: #e8daef; color: #6c3483; }
+
+  /* Word analysis accordion */
+  .reading { border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.5rem; overflow: hidden; }
+  .reading-header {
+    padding: 0.6rem 1rem; background: #f8f9fa; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .reading-header:hover { background: #eef2f7; }
+  .reading-body { padding: 0.8rem 1rem; display: none; border-top: 1px solid var(--border); }
+  .reading.open .reading-body { display: block; }
+  .reading-body .row { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 0.3rem; }
+  .reading-body .row .label { color: var(--muted); min-width: 80px; }
+
+  /* I'rab output */
+  .irab-output {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1.5rem; line-height: 2; font-size: 1.05rem; direction: rtl;
+    white-space: pre-wrap;
+  }
+  .irab-output p, .irab-output li { margin-bottom: 0.5rem; }
+
+  /* Conjugation table */
+  .conj-section { margin-bottom: 2rem; }
+  .conj-section h3 {
+    font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--primary);
+    border-bottom: 2px solid var(--border); padding-bottom: 0.3rem;
+  }
+  .conj-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  .conj-table th {
+    background: var(--primary); color: #fff; padding: 0.5rem 0.8rem;
+    font-weight: 500; font-size: 0.9rem;
+  }
+  .conj-table td {
+    padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+  }
+  .conj-cell { font-size: 1.15rem; font-weight: 500; }
+  .conj-table tr:hover td { background: #f0f7ff; }
+  .conj-meta {
+    display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1rem;
+    padding: 0.8rem 1rem; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .conj-meta .field { }
+  .conj-meta .label { color: var(--muted); font-size: 0.85rem; }
+  .conj-meta .value { font-weight: 600; font-size: 1.1rem; }
+
+  /* Status */
+  .status { text-align: center; padding: 2rem; color: var(--muted); }
+  .error { color: var(--warn); }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--border);
+    border-top-color: var(--primary); border-radius: 50%; animation: spin 0.6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Config */
+  .config { font-size: 0.8rem; color: var(--muted); margin-top: 2rem; text-align: center; }
+  .config input { width: 250px; padding: 0.3rem 0.5rem; font-size: 0.8rem; border: 1px solid var(--border);
+    border-radius: 4px; direction: ltr; text-align: left; }
+
+  @media (max-width: 600px) {
+    .input-row { flex-direction: column; }
+    .tabs { overflow-x: auto; }
+    .card .field { display: block; margin-inline-end: 0; }
+    .tab { padding: 0.5rem 0.8rem; font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 data-i18n="title"></h1>
+    <small data-i18n="subtitle"></small>
+  </div>
+  <button class="lang-toggle" onclick="toggleLang()" data-i18n="langSwitch"></button>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('irab', this)" data-i18n="tabIrab"></button>
+    <button class="tab" onclick="switchTab('tasrif', this)" data-i18n="tabTasrif"></button>
+    <button class="tab" onclick="switchTab('sentence', this)" data-i18n="tabSentence"></button>
+    <button class="tab" onclick="switchTab('word', this)" data-i18n="tabWord"></button>
+    <button class="tab" onclick="switchTab('transitivity', this)" data-i18n="tabTransitivity"></button>
+  </div>
+
+  <!-- I'rab Analysis -->
+  <div id="panel-irab" class="panel active">
+    <div class="input-row">
+      <input id="irab-input" type="text" value="كتب الطالب الرسالة" data-i18n-placeholder="phIrab">
+      <button class="btn" onclick="doIrab()" data-i18n="btnIrab"></button>
+    </div>
+    <div id="irab-results" class="status" data-i18n="promptIrab"></div>
+  </div>
+
+  <!-- Tasrif (Conjugation) -->
+  <div id="panel-tasrif" class="panel">
+    <div class="input-row">
+      <input id="tasrif-input" type="text" value="كتب" data-i18n-placeholder="phTasrif">
+      <button class="btn" onclick="doTasrif()" data-i18n="btnTasrif"></button>
+    </div>
+    <div id="tasrif-results" class="status" data-i18n="promptTasrif"></div>
+  </div>
+
+  <!-- Sentence Analysis -->
+  <div id="panel-sentence" class="panel">
+    <div class="input-row">
+      <input id="sentence-input" type="text" value="كتب الطالب الرسالة" data-i18n-placeholder="phSentence">
+      <button class="btn" onclick="analyzeSentence()" data-i18n="btnAnalyze"></button>
+    </div>
+    <div id="sentence-results" class="status" data-i18n="promptSentence"></div>
+  </div>
+
+  <!-- Word Analysis -->
+  <div id="panel-word" class="panel">
+    <div class="input-row">
+      <input id="word-input" type="text" value="كتب" data-i18n-placeholder="phWord">
+      <button class="btn" onclick="analyzeWord()" data-i18n="btnAnalyze"></button>
+    </div>
+    <div id="word-results" class="status" data-i18n="promptWord"></div>
+  </div>
+
+  <!-- Transitivity -->
+  <div id="panel-transitivity" class="panel">
+    <div class="input-row">
+      <input id="trans-input" type="text" value="ذهب" data-i18n-placeholder="phVerb">
+      <button class="btn" onclick="checkTransitivity()" data-i18n="btnCheck"></button>
+    </div>
+    <div id="trans-results" class="status" data-i18n="promptVerb"></div>
+  </div>
+
+  <div class="config">
+    <span data-i18n="serverLabel"></span> <input id="api-url" value="http://localhost:8000" onchange="API_BASE=this.value">
+  </div>
+</div>
+
+<script>
+let API_BASE = 'http://localhost:8000';
+let LANG = 'ar';
+
+// --- i18n ---
+const I18N = {
+  ar: {
+    title: 'إعراب',
+    subtitle: 'تحليل صرفي عربي — Arabic Morphological Analysis',
+    langSwitch: 'English',
+    tabIrab: 'إعراب',
+    tabTasrif: 'تصريف',
+    tabSentence: 'تحليل جملة',
+    tabWord: 'تحليل كلمة',
+    tabTransitivity: 'التعدي واللزوم',
+    btnAnalyze: 'حلّل',
+    btnCheck: 'تحقّق',
+    btnIrab: 'أعرِب',
+    btnTasrif: 'صرِّف',
+    phSentence: 'اكتب جملة عربية...',
+    phWord: 'اكتب كلمة واحدة...',
+    phVerb: 'اكتب فعلًا...',
+    phIrab: 'اكتب جملة لإعرابها...',
+    phTasrif: 'اكتب فعلًا لتصريفه...',
+    promptSentence: 'أدخل جملة واضغط «حلّل»',
+    promptWord: 'أدخل كلمة واضغط «حلّل»',
+    promptVerb: 'أدخل فعلًا واضغط «تحقّق»',
+    promptIrab: 'أدخل جملة واضغط «أعرِب»',
+    promptTasrif: 'أدخل فعلًا واضغط «صرِّف»',
+    serverLabel: 'عنوان الخادم:',
+    noResults: 'لا توجد نتائج',
+    notFound: 'الكلمة غير موجودة في القاموس',
+    verbNotFound: 'الفعل غير موجود',
+    connError: 'خطأ في الاتصال بالخادم',
+    readings: 'قراءة محتملة',
+    irabLoading: 'جارٍ الإعراب... قد يستغرق بضع ثوانٍ',
+    irabError: 'خطأ في الإعراب',
+    // Table headers
+    hWord: 'الكلمة', hType: 'النوع', hSubtype: 'الفرعي', hTense: 'الزمن',
+    hVoice: 'الصوت', hGender: 'الجنس', hNumber: 'العدد', hDef: 'التعريف', hGloss: 'المعنى',
+    // Fields
+    fType: 'النوع', fTense: 'الزمن', fVoice: 'الصوت', fGender: 'الجنس',
+    fNumber: 'العدد', fDef: 'التعريف', fLemma: 'الجذر', fGloss: 'المعنى',
+    // Transitivity
+    tForm: 'الوزن', tTrans: 'التعدي', tSource: 'المصدر', tVoice: 'الصوت', tTense: 'الزمن',
+    srcQabas: 'قبس', srcHeuristic: 'استدلال',
+    // Conjugation
+    cLemma: 'الجذر', cForm: 'الباب', cGloss: 'المعنى',
+    cPerson: 'الضمير', cPast: 'الماضي', cImperfect: 'المضارع', cImperative: 'الأمر',
+    cActive: 'المعلوم', cPassive: 'المجهول',
+    cPastActive: 'الماضي المعلوم', cPastPassive: 'الماضي المجهول',
+    cImperfectActive: 'المضارع المعلوم', cImperfectPassive: 'المضارع المجهول',
+    cImperativeLabel: 'الأمر',
+  },
+  en: {
+    title: 'i\'rab',
+    subtitle: 'Arabic Morphological Analysis',
+    langSwitch: 'العربية',
+    tabIrab: 'I\'rab',
+    tabTasrif: 'Conjugation',
+    tabSentence: 'Sentence',
+    tabWord: 'Word',
+    tabTransitivity: 'Transitivity',
+    btnAnalyze: 'Analyze',
+    btnCheck: 'Check',
+    btnIrab: 'Parse',
+    btnTasrif: 'Conjugate',
+    phSentence: 'Enter an Arabic sentence...',
+    phWord: 'Enter a single word...',
+    phVerb: 'Enter a verb...',
+    phIrab: 'Enter a sentence for i\'rab...',
+    phTasrif: 'Enter a verb to conjugate...',
+    promptSentence: 'Enter a sentence and press Analyze',
+    promptWord: 'Enter a word and press Analyze',
+    promptVerb: 'Enter a verb and press Check',
+    promptIrab: 'Enter a sentence and press Parse',
+    promptTasrif: 'Enter a verb and press Conjugate',
+    serverLabel: 'API server:',
+    noResults: 'No results',
+    notFound: 'Word not found in database',
+    verbNotFound: 'Verb not found',
+    connError: 'Connection error',
+    readings: 'possible readings',
+    irabLoading: 'Parsing... this may take a few seconds',
+    irabError: 'I\'rab error',
+    hWord: 'Word', hType: 'Type', hSubtype: 'Subtype', hTense: 'Tense',
+    hVoice: 'Voice', hGender: 'Gender', hNumber: 'Number', hDef: 'Definiteness', hGloss: 'Gloss',
+    fType: 'Type', fTense: 'Tense', fVoice: 'Voice', fGender: 'Gender',
+    fNumber: 'Number', fDef: 'Definiteness', fLemma: 'Lemma', fGloss: 'Gloss',
+    tForm: 'Form', tTrans: 'Transitivity', tSource: 'Source', tVoice: 'Voice', tTense: 'Tense',
+    srcQabas: 'Qabas', srcHeuristic: 'Heuristic',
+    cLemma: 'Lemma', cForm: 'Form', cGloss: 'Gloss',
+    cPerson: 'Person', cPast: 'Past', cImperfect: 'Imperfect', cImperative: 'Imperative',
+    cActive: 'Active', cPassive: 'Passive',
+    cPastActive: 'Past (Active)', cPastPassive: 'Past (Passive)',
+    cImperfectActive: 'Imperfect (Active)', cImperfectPassive: 'Imperfect (Passive)',
+    cImperativeLabel: 'Imperative',
+  }
+};
+
+function t(key) { return I18N[LANG][key] || key; }
+
+// Translate API values (Arabic morphological terms → English) when in English mode
+const VALUE_MAP = {
+  // type
+  'فعل': 'verb', 'اسم': 'noun', 'حرف': 'particle', 'أداة': 'determiner',
+  // subtype
+  'علم': 'proper noun', 'صفة': 'adjective', 'اسم تفضيل': 'comparative',
+  'صفة عددية': 'ordinal', 'ظرف': 'adverb', 'ضمير': 'pronoun',
+  'اسم إشارة': 'demonstrative', 'اسم موصول': 'relative pronoun',
+  'حرف جر': 'preposition', 'حرف عطف': 'conjunction',
+  'اسم كمية': 'quantifier', 'عدد': 'numeral', 'اختصار': 'abbreviation',
+  'اسم استفهام': 'interrogative', 'أل التعريف': 'definite article',
+  // tense
+  'ماضٍ': 'past', 'مضارع': 'imperfect', 'أمر': 'imperative',
+  // voice
+  'مبني للمعلوم': 'active', 'مبني للمجهول': 'passive',
+  // gender
+  'مذكر': 'masculine', 'مؤنث': 'feminine',
+  // number
+  'مفرد': 'singular', 'مثنى': 'dual', 'جمع': 'plural',
+  'جمع مذكر سالم': 'masc. plural', 'جمع مؤنث سالم': 'fem. plural',
+  // definiteness
+  'معرفة': 'definite',
+  // transitivity
+  'متعد': 'transitive', 'متعدٍّ': 'transitive', 'لازم': 'intransitive',
+};
+
+// Arabic verb form names
+const FORM_AR = {
+  'I': 'الأول', 'II': 'الثاني', 'III': 'الثالث', 'IV': 'الرابع',
+  'V': 'الخامس', 'VI': 'السادس', 'VII': 'السابع', 'VIII': 'الثامن',
+  'IX': 'التاسع', 'X': 'العاشر',
+};
+
+function v(val) {
+  if (!val || val === '-') return '-';
+  if (LANG === 'ar') return val;
+  return VALUE_MAP[val] || val;
+}
+
+function formLabel(form) {
+  if (LANG === 'ar') return 'الباب ' + (FORM_AR[form] || form);
+  return 'Form ' + form;
+}
+
+function applyLang() {
+  const html = document.documentElement;
+  html.lang = LANG;
+  html.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+}
+
+function toggleLang() {
+  LANG = LANG === 'ar' ? 'en' : 'ar';
+  applyLang();
+}
+
+// Apply on load
+applyLang();
+
+// --- Tabs ---
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+function loading(el) { el.innerHTML = '<div class="spinner"></div>'; }
+function loadingWithMsg(el, msg) { el.innerHTML = '<div class="spinner"></div><div style="margin-top:0.5rem">' + msg + '</div>'; }
+function showError(el, msg) { el.innerHTML = '<div class="error">' + msg + '</div>'; }
+
+// --- Escape HTML to prevent XSS ---
+function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// --- I'rab Analysis ---
+async function doIrab() {
+  const text = document.getElementById('irab-input').value.trim();
+  if (!text) return;
+  const el = document.getElementById('irab-results');
+  loadingWithMsg(el, t('irabLoading'));
+  try {
+    const res = await fetch(API_BASE + '/irab', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: text}),
+    });
+    if (!res.ok) { showError(el, t('connError') + ' (' + res.status + ')'); return; }
+    const data = await res.json();
+    if (data.error) {
+      showError(el, t('irabError') + ': ' + esc(data.error));
+      return;
+    }
+    // Render the i'rab prose output
+    const formatted = esc(data.irab)
+      .replace(/\n/g, '<br>')
+      .replace(/•/g, '<strong>•</strong>');
+    el.innerHTML = '<div class="irab-output">' + formatted + '</div>';
+  } catch (e) { showError(el, t('connError') + ': ' + esc(e.message)); }
+}
+
+// --- Tasrif (Conjugation) ---
+async function doTasrif() {
+  const verb = document.getElementById('tasrif-input').value.trim();
+  if (!verb) return;
+  const el = document.getElementById('tasrif-results');
+  loading(el);
+  try {
+    const res = await fetch(API_BASE + '/tasrif?verb=' + encodeURIComponent(verb));
+    if (!res.ok) { showError(el, t('connError') + ' (' + res.status + ')'); return; }
+    const data = await res.json();
+    if (data.error) {
+      showError(el, t('verbNotFound'));
+      return;
+    }
+    if (!data.past) {
+      showError(el, t('verbNotFound'));
+      return;
+    }
+
+    let html = '';
+
+    // Meta info
+    html += '<div class="conj-meta">';
+    html += '<div class="field"><div class="label">' + t('cForm') + '</div><div class="value">' + formLabel(data.form) + '</div></div>';
+    if (data.gloss) html += '<div class="field"><div class="label">' + t('cGloss') + '</div><div class="value">' + esc(data.gloss) + '</div></div>';
+    html += '</div>';
+
+    // Build a lookup: person key → arabic form for each tense/voice
+    const pa = data.past.active || [];
+    const pp = data.past.passive || [];
+    const ia = data.imperfect.active || [];
+    const ip = data.imperfect.passive || [];
+    const imp = data.imperative || [];
+    function byPerson(arr) { const m = {}; for (const f of arr) m[f.person] = f.arabic; return m; }
+    const paMap = byPerson(pa), ppMap = byPerson(pp);
+    const iaMap = byPerson(ia), ipMap = byPerson(ip);
+    const impMap = byPerson(imp);
+
+    const hasPP = pp.length > 0, hasIP = ip.length > 0, hasImp = imp.length > 0;
+    const hasPassive = hasPP || hasIP;
+
+    // Single unified table
+    html += '<table class="conj-table"><tr><th rowspan="2">' + t('cPerson') + '</th>';
+    // Active columns header
+    const activeCols = 2 + (hasImp ? 1 : 0);
+    html += '<th colspan="' + activeCols + '">' + t('cActive') + '</th>';
+    if (hasPassive) {
+      const passiveCols = (hasPP ? 1 : 0) + (hasIP ? 1 : 0);
+      html += '<th colspan="' + passiveCols + '">' + t('cPassive') + '</th>';
+    }
+    html += '</tr><tr>';
+    // Active sub-headers
+    html += '<th>' + t('cPast') + '</th>';
+    html += '<th>' + t('cImperfect') + '</th>';
+    if (hasImp) html += '<th>' + t('cImperative') + '</th>';
+    // Passive sub-headers
+    if (hasPP) html += '<th>' + t('cPast') + '</th>';
+    if (hasIP) html += '<th>' + t('cImperfect') + '</th>';
+    html += '</tr>';
+
+    // Rows
+    const persons = pa.length ? pa : ia;
+    for (const f of persons) {
+      const lbl = f.label_ar + ' / ' + f.label_en;
+      html += '<tr><td>' + esc(lbl) + '</td>';
+      html += '<td class="conj-cell">' + esc(paMap[f.person] || '-') + '</td>';
+      html += '<td class="conj-cell">' + esc(iaMap[f.person] || '-') + '</td>';
+      if (hasImp) html += '<td class="conj-cell">' + esc(impMap[f.person] || '-') + '</td>';
+      if (hasPP) html += '<td class="conj-cell">' + esc(ppMap[f.person] || '-') + '</td>';
+      if (hasIP) html += '<td class="conj-cell">' + esc(ipMap[f.person] || '-') + '</td>';
+      html += '</tr>';
+    }
+    html += '</table>';
+
+    el.innerHTML = html;
+  } catch (e) { showError(el, t('connError') + ': ' + esc(e.message)); }
+}
+
+// --- Sentence Analysis ---
+async function analyzeSentence() {
+  const text = document.getElementById('sentence-input').value.trim();
+  if (!text) return;
+  const el = document.getElementById('sentence-results');
+  loading(el);
+  try {
+    const res = await fetch(API_BASE + '/analyze/sentence?text=' + encodeURIComponent(text));
+    const data = await res.json();
+    if (!data.words || data.words.length === 0) { showError(el, t('noResults')); return; }
+    let html = '<table><tr>' +
+      '<th>' + t('hWord') + '</th><th>' + t('hType') + '</th><th>' + t('hSubtype') + '</th>' +
+      '<th>' + t('hTense') + '</th><th>' + t('hVoice') + '</th><th>' + t('hGender') + '</th>' +
+      '<th>' + t('hNumber') + '</th><th>' + t('hDef') + '</th><th>' + t('hGloss') + '</th></tr>';
+    for (const w of data.words) {
+      const a = w.top_analyses[0];
+      if (!a) continue;
+      html += '<tr>' +
+        '<td><strong>' + esc(w.word) + '</strong><br><small style="color:var(--muted)">' + esc(a.vocalized || '') + '</small></td>' +
+        '<td>' + v(a.type) + '</td>' +
+        '<td>' + v(a.subtype) + '</td>' +
+        '<td>' + v(a.tense) + '</td>' +
+        '<td>' + v(a.voice) + '</td>' +
+        '<td>' + v(a.gender) + '</td>' +
+        '<td>' + v(a.number) + '</td>' +
+        '<td>' + v(a.definiteness) + '</td>' +
+        '<td><small>' + esc(a.gloss || '-') + '</small></td>' +
+        '</tr>';
+    }
+    html += '</table>';
+    el.innerHTML = html;
+  } catch (e) { showError(el, t('connError') + ': ' + esc(e.message)); }
+}
+
+// --- Word Analysis ---
+async function analyzeWord() {
+  const word = document.getElementById('word-input').value.trim();
+  if (!word) return;
+  const el = document.getElementById('word-results');
+  loading(el);
+  try {
+    const res = await fetch(API_BASE + '/analyze/word?word=' + encodeURIComponent(word));
+    const data = await res.json();
+    if (!data.analyses || data.analyses.length === 0) { showError(el, t('notFound')); return; }
+    let html = '<div style="margin-bottom:0.5rem;color:var(--muted)">' + data.total_analyses + ' ' + t('readings') + '</div>';
+    for (let i = 0; i < data.analyses.length; i++) {
+      const a = data.analyses[i];
+      html += '<div class="reading" onclick="this.classList.toggle(\'open\')">' +
+        '<div class="reading-header"><span><strong>' + esc(a.vocalized || word) + '</strong> — ' + v(a.type) +
+        (a.subtype ? ' (' + v(a.subtype) + ')' : '') + '</span><span>' + esc(a.gloss || '') + '</span></div>' +
+        '<div class="reading-body">' +
+        '<div class="row"><span class="label">' + t('fType') + ':</span> ' + v(a.type) + (a.subtype ? ' / ' + v(a.subtype) : '') + '</div>' +
+        '<div class="row"><span class="label">' + t('fTense') + ':</span> ' + v(a.tense) + '</div>' +
+        '<div class="row"><span class="label">' + t('fVoice') + ':</span> ' + v(a.voice) + '</div>' +
+        '<div class="row"><span class="label">' + t('fGender') + ':</span> ' + v(a.gender) + '</div>' +
+        '<div class="row"><span class="label">' + t('fNumber') + ':</span> ' + v(a.number) + '</div>' +
+        '<div class="row"><span class="label">' + t('fDef') + ':</span> ' + v(a.definiteness) + '</div>' +
+        '<div class="row"><span class="label">' + t('fLemma') + ':</span> ' + esc(a.lemma || '-') + '</div>' +
+        '<div class="row"><span class="label">' + t('fGloss') + ':</span> ' + esc(a.gloss || '-') + '</div>' +
+        '</div></div>';
+    }
+    el.innerHTML = html;
+  } catch (e) { showError(el, t('connError') + ': ' + esc(e.message)); }
+}
+
+// --- Transitivity ---
+async function checkTransitivity() {
+  const verb = document.getElementById('trans-input').value.trim();
+  if (!verb) return;
+  const el = document.getElementById('trans-results');
+  loading(el);
+  try {
+    const res = await fetch(API_BASE + '/check/transitivity?verb=' + encodeURIComponent(verb));
+    const data = await res.json();
+    if (!data.readings || data.readings.length === 0) { showError(el, t('verbNotFound')); return; }
+    let html = '';
+    for (const r of data.readings) {
+      const transBadge = r.transitivity.includes('لازم')
+        ? '<span class="badge badge-intrans">' + v('لازم') + '</span>'
+        : r.transitivity.includes('مجهول')
+        ? '<span class="badge badge-passive">' + v(r.transitivity) + '</span>'
+        : '<span class="badge badge-trans">' + v('متعدٍّ') + '</span>';
+      html += '<div class="card">' +
+        '<div class="card-title">' + esc(r.vocalized || verb) + '</div>' +
+        '<div>' +
+        '<span class="field"><span class="label">' + t('tForm') + ': </span><span class="value">' + formLabel(r.form) + '</span></span>' +
+        '<span class="field"><span class="label">' + t('tTrans') + ': </span>' + transBadge + '</span>' +
+        '<span class="field"><span class="label">' + t('tVoice') + ': </span><span class="value">' + v(r.voice) + '</span></span>' +
+        '<span class="field"><span class="label">' + t('tTense') + ': </span><span class="value">' + v(r.tense) + '</span></span>' +
+        '</div>' +
+        '<div style="margin-top:0.5rem;color:var(--muted);font-size:0.9rem">' + esc(r.gloss || '') + '</div>' +
+        '</div>';
+    }
+    el.innerHTML = html;
+  } catch (e) { showError(el, t('connError') + ': ' + esc(e.message)); }
+}
+
+// Enter key triggers analysis
+document.getElementById('irab-input').addEventListener('keydown', e => { if (e.key === 'Enter') doIrab(); });
+document.getElementById('tasrif-input').addEventListener('keydown', e => { if (e.key === 'Enter') doTasrif(); });
+document.getElementById('sentence-input').addEventListener('keydown', e => { if (e.key === 'Enter') analyzeSentence(); });
+document.getElementById('word-input').addEventListener('keydown', e => { if (e.key === 'Enter') analyzeWord(); });
+document.getElementById('trans-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkTransitivity(); });
+</script>
+
+</body>
+</html>
