@@ -475,7 +475,7 @@ def _irab_via_cli(text: str) -> str:
         ["claude", "-p", f"أعرب: {text}", "--output-format", "text"],
         capture_output=True,
         text=True,
-        timeout=120,
+        timeout=300,
         cwd=os.path.join(_base_dir, ".."),
     )
     if result.returncode != 0:
