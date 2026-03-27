@@ -58,7 +58,7 @@ Every model received the same prompt and the same 30 verses. For each word, we c
 
 The engine achieved **zero** errors in case assignment, case signs, and governor identification. Its remaining ~2.4% consists entirely of legitimate differences of grammatical opinion (خلاف نحوي) where classical grammarians themselves disagree. For example:
 
-> In **آل عمران: 3**, the reference (*إعراب القرآن الكريم*) says ﴿مُصَدِّقاً﴾ is حال من الضمير في عليك — the hidden pronoun "you" is the owner of the state. The engine analyzed it as حال من الكتاب — the "book" is described as "confirming". Both positions are attested in classical grammar: سيبويه's school allows the حال to refer to the nearest eligible noun, while others tie it to the logical agent. Neither analysis changes the case (منصوب) or the governor (the verb نزّل).
+> In **آل عمران: 3**, the reference (*إعراب القرآن الكريم*) says مُصَدِّقاً is حال من الضمير في عليك — the hidden pronoun "you" is the owner of the state. The engine analyzed it as حال من الكتاب — the "book" is described as "confirming". Both positions are attested in classical grammar: the majority of grammarians hold that when multiple candidates exist, the حال attaches to the nearest eligible noun (Ibn Aqil, *Sharh Alfiyyat Ibn Malik*, section on الحال; al-Sabban, *Hashiyat al-Sabban ala Sharh al-Ashmuni*), while others tie it to the logical agent. Neither analysis changes the case (منصوب) or the governor (the verb نزّل).
 
 The full error inventory, scoring methodology, and per-verse breakdowns are in [`tests/blind_test_report.md`](tests/blind_test_report.md). The benchmark scripts that called the 10 models are in [`tests/benchmark_models.py`](tests/benchmark_models.py).
 
@@ -85,10 +85,10 @@ The full error inventory, scoring methodology, and per-verse breakdowns are in [
 
 A 4-pass sequential pipeline:
 
-1. **التصنيف (Classification)** — Classify every word using morphological tools + disambiguation trees
-2. **العوامل (Governor Mapping)** — Identify what causes each word's grammatical case
-3. **الإعراب (Case Assignment)** — Assign case and case sign mechanically from governor → case → sign chain
-4. **المراجعة (Verification)** — Validate against 6 explicit checks; fix inconsistencies
+1. **Classification** (التصنيف) — Classify every word using morphological tools + disambiguation trees
+2. **Governor Mapping** (العوامل) — Identify what causes each word's grammatical case
+3. **Case Assignment** (الإعراب) — Assign case and case sign mechanically from governor → case → sign chain
+4. **Verification** (المراجعة) — Validate against 6 explicit checks; fix inconsistencies
 
 ### MCP Server
 
