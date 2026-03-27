@@ -21,7 +21,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          pip install setuptools
+          pip install -e ".[dev]"
 
       - name: Smoke test - pyaramorph analyzer loads
         run: python -c "import pyaramorph; print(len(pyaramorph.Analyzer().stems), 'stems loaded')"
