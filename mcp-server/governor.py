@@ -19,16 +19,7 @@ from disambiguator import (
     SentenceClassification,
     WordClassification,
     _strip,
-    KANA_SISTERS,
-    KANA_NEGATION_SISTERS,
-    INNA_UNAMBIGUOUS,
-    KAAD_ALL,
-    ZANNA_ALL,
-    ZANNA_YAQEEN,
-    ZANNA_RUJHAN,
-    ZANNA_TAHWEEL,
     STANDALONE_PREPOSITIONS,
-    NEGATION_PARTICLES,
 )
 
 # ---------------------------------------------------------------------------
@@ -500,8 +491,6 @@ def _assign_laa_nafiya_liljins(
 ) -> set[int]:
     """Assign governors for لا النافية للجنس pattern."""
     assigned: set[int] = set()
-    laa = words[laa_idx]
-
     assignments[laa_idx].role = "لا النافية للجنس"
     assignments[laa_idx].case = None
     assignments[laa_idx].confidence = "high"
@@ -888,12 +877,7 @@ def _detect_ishtighal(
         if wc_noun.word_type != "اسم" or not wc_verb or wc_verb.word_type != "فعل":
             continue
 
-        # Check if verb has a suffix pronoun (ه/ها/هم/هما/هنّ/ك/كم...)
-        has_object_pronoun = bool(wc_verb.suffixes and any(
-            s.get("role") in ("مفعول", "مفعول به")
-            for s in ([wc_verb.subject_suffix] if isinstance(wc_verb.subject_suffix, dict) else [])
-        ))
-        # Simplified: check if the verb has any attached pronoun suffix
+        # Check if the verb has any attached pronoun suffix
         if not wc_verb.suffixes:
             continue
 

@@ -1,6 +1,5 @@
 """Tests for Pass 3 (case signs) and Pass 4 (verification)."""
 
-import pytest
 
 
 # ---------------------------------------------------------------------------

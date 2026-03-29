@@ -1,6 +1,5 @@
 """Tests for the disambiguator module — deterministic Pass 1 classification."""
 
-import pytest
 
 
 # ---------------------------------------------------------------------------
@@ -77,7 +76,7 @@ class TestParticleMaa:
 
     def test_maa_nafiya_liljins_context(self, classify):
         """ما after إنّ sisters → كافة."""
-        r = classify("إنما العلم نور")
+        classify("إنما العلم نور")
         # إنما is one token — check if Buckwalter splits it
         # If not split, the particle handling won't trigger separately
         # This is a tokenization-dependent test
@@ -104,8 +103,6 @@ class TestParticleLaa:
 class TestParticleWaw:
     def test_waw_default_atf(self, classify):
         r = classify("جاء زيد وعمرو")
-        # The واو might be prefix-attached to عمرو or standalone
-        waw_words = [w for w in r.words if "و" == w.word or w.particle_type and "عطف" in w.particle_type]
         # At minimum, the sentence should parse without error
         assert len(r.words) >= 3
 

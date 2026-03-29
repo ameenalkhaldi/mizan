@@ -731,7 +731,6 @@ def _classify_faa(ctx: ParticleContext) -> dict:
 def _classify_min_man(ctx: ParticleContext) -> dict:
     """Disambiguate مِن/مَن (disambiguation.md § من)."""
     after = ctx.after
-    before = ctx.before
 
     # Use Buckwalter POS to distinguish: PREP = مِن, INTERROG/REL_PRON = مَن
     # Check raw analyses for the word
@@ -957,7 +956,6 @@ def _classify_law(ctx: ParticleContext) -> dict:
 def _classify_idha(ctx: ParticleContext) -> dict:
     """Disambiguate إذا — فجائية vs شرطية ظرفية."""
     before = ctx.before
-    after = ctx.after
 
     # After فاء + before اسمية → فجائية
     if before and _strip(before.word) in ("ف", "فـ"):
@@ -1109,7 +1107,6 @@ def _determine_declinability(wc: WordClassification) -> tuple[str, str | None]:
             # Check subject suffix for build vowel
             suffix = wc.subject_suffix
             if suffix:
-                desc = suffix.get("desc", "")
                 number = suffix.get("number", "")
                 person = suffix.get("person")
                 # واو الجماعة → مبني على الضم
@@ -1126,7 +1123,6 @@ def _determine_declinability(wc: WordClassification) -> tuple[str, str | None]:
 
         if wc.tense == "مضارع":
             # Check for نون النسوة or نون التوكيد
-            pos_raw = ""
             # Normally معرب
             return "مُعرب", None
 

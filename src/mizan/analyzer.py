@@ -483,7 +483,6 @@ def parse_solution(solution_text: str) -> dict:
     # Detect broken plural: if a noun has no explicit plural suffix but its
     # gloss or stem category suggests plural, mark it
     if result["type"] == "اسم" and result["number"] == "مفرد":
-        gloss = result.get("gloss", "") or ""
         # Buckwalter glosses for plurals often contain plural indicators
         if noun_buck_stem:
             # Check if this stem is in the stems dict as a plural category

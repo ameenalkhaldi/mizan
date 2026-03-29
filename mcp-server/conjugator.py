@@ -9,7 +9,7 @@ import re
 
 import pyaramorph
 
-from analyzer import analyzer, parse_solution, detect_verb_form, DIACRITICS_RE, _extract_root_consonants
+from analyzer import analyzer, parse_solution, detect_verb_form, _extract_root_consonants
 
 
 # --- Person definitions ---

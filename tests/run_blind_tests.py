@@ -28,9 +28,7 @@ require NLP parsing of the Arabic إعراب text.
 """
 
 import json
-import sys
 import argparse
-from pathlib import Path
 
 
 def load_tests(path: str = "data/irab_training_30.json") -> list[dict]:
@@ -48,7 +46,7 @@ def print_test(test: dict, show_answer: bool = False) -> None:
     print(f"{'='*70}")
     print(f"\nالآية: {test['verse']}")
     if show_answer:
-        print(f"\n--- الإعراب المرجعي ---")
+        print("\n--- الإعراب المرجعي ---")
         print(test['correct_irab'])
     print()
 
@@ -69,11 +67,11 @@ def print_for_comparison(test: dict, agent_answer: str) -> None:
     print(f"Patterns: {', '.join(test['patterns_tested'])}")
     print(f"{'='*70}")
     print(f"\nالآية: {test['verse']}")
-    print(f"\n--- الإعراب المرجعي (من الكتاب) ---")
+    print("\n--- الإعراب المرجعي (من الكتاب) ---")
     print(test['correct_irab'])
-    print(f"\n--- إعراب المحلل (الذكاء الاصطناعي) ---")
+    print("\n--- إعراب المحلل (الذكاء الاصطناعي) ---")
     print(agent_answer)
-    print(f"\n--- التقييم ---")
+    print("\n--- التقييم ---")
     print("[ ] مطابق تماماً")
     print("[ ] صحيح مع اختلاف في الصياغة")
     print("[ ] خطأ في: _____________")
@@ -85,7 +83,7 @@ def export_blind_prompts(tests: list[dict], output_path: str = "tests/blind_prom
     with open(output_path, "w", encoding="utf-8") as f:
         for test in tests:
             f.write(f"=== TEST {test['id']} — {test['reference']} ===\n")
-            f.write(f"أعرب الآية التالية إعراباً تفصيلياً كاملاً:\n")
+            f.write("أعرب الآية التالية إعراباً تفصيلياً كاملاً:\n")
             f.write(f"{test['verse']}\n\n")
     print(f"Exported {len(tests)} blind prompts to {output_path}")
 
@@ -113,10 +111,10 @@ def summary_stats(tests: list[dict]) -> None:
             patterns[p] = patterns.get(p, 0) + 1
 
     print(f"\n{'='*50}")
-    print(f"TEST SET SUMMARY")
+    print("TEST SET SUMMARY")
     print(f"{'='*50}")
     print(f"Total verses: {len(tests)}")
-    print(f"\nBy source book:")
+    print("\nBy source book:")
     for book, count in sorted(books.items()):
         print(f"  Shamela #{book}: {count} verses")
     print(f"\nGrammar patterns ({len(patterns)} unique):")

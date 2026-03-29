@@ -1,6 +1,5 @@
 """Tests for the governor module — deterministic Pass 2 governor mapping."""
 
-import pytest
 
 
 # ---------------------------------------------------------------------------
@@ -102,7 +101,6 @@ class TestPrepositions:
     def test_multiple_prepositions(self, governor_module):
         r = governor_module.map_governors("ذهب من البيت إلى المدرسة")
         # من البيت
-        prep1 = [a for a in r.words if a.word == "من"][0]
         bait = [a for a in r.words if "بيت" in (a.word or "")][0]
         assert bait.case == "جر"
         # إلى المدرسة

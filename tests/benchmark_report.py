@@ -186,8 +186,8 @@ def main():
 
     # Generate table
     table = generate_table(results)
-    print(f"\n## I'rab Benchmark — LLM Comparison\n")
-    print(f"30 Quranic verses scored against published Shamela references.\n")
+    print("\n## I'rab Benchmark — LLM Comparison\n")
+    print("30 Quranic verses scored against published Shamela references.\n")
     print(table)
     print()
 

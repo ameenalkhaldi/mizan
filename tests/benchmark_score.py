@@ -505,7 +505,6 @@ def main():
             save_score(model_id, vid, result)
 
             pct = result["accuracy_pct"]
-            nerr = len(result["errors"])
             marker = " *" if pct == 100.0 else ""
             print(f"  [{vid:2d}] {v['reference']:20s}  "
                   f"{result['items_correct']}/{result['items_total']}  "

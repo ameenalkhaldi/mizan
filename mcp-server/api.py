@@ -24,7 +24,6 @@ from analyzer import (
     parse_solution,
     detect_verb_form,
     lookup_transitivity,
-    DIACRITICS_RE,
     QABAS_VERBS,
     PV_PASS_STEMS,
     IV_PASS_STEMS,

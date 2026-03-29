@@ -19,18 +19,17 @@ from pydantic import BaseModel
 
 import pyaramorph
 
-from .analyzer import (
+from analyzer import (
     analyzer,
     parse_solution,
     detect_verb_form,
     lookup_transitivity,
-    DIACRITICS_RE,
     QABAS_VERBS,
     PV_PASS_STEMS,
     IV_PASS_STEMS,
     FEMININE_NOUNS,
 )
-from .conjugator import conjugate
+from conjugator import conjugate
 
 # --- Configuration (from env vars with defaults) ---
 
@@ -398,7 +397,7 @@ def api_full_irab(text: str = Query(..., description="Arabic sentence")):
     err = _validate_arabic(text, "text")
     if err:
         return {"text": text, "error": err}
-    from .governor import full_irab
+    from governor import full_irab
     result = full_irab(text)
     gov_words = []
     if result.governor_map:
@@ -428,7 +427,7 @@ def api_map_governors(text: str = Query(..., description="Arabic sentence")):
     err = _validate_arabic(text, "text")
     if err:
         return {"text": text, "error": err}
-    from .governor import map_governors
+    from governor import map_governors
     result = map_governors(text)
     data = {
         "original_text": result.original_text,
@@ -451,7 +450,7 @@ def api_classify_sentence(text: str = Query(..., description="Arabic sentence"))
     err = _validate_arabic(text, "text")
     if err:
         return {"text": text, "error": err}
-    from .disambiguator import classify_sentence
+    from disambiguator import classify_sentence
     result = classify_sentence(text)
     return dataclasses.asdict(result)
 
@@ -475,7 +474,7 @@ def _irab_via_cli(text: str) -> str:
         ["claude", "-p", f"أعرب: {text}", "--output-format", "text"],
         capture_output=True,
         text=True,
-        timeout=120,
+        timeout=300,
         cwd=os.path.join(_base_dir, ".."),
     )
     if result.returncode != 0:
