@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install setuptools
+          pip install "setuptools<72"
           pip install -e ".[dev,api]"
 
       - name: Smoke test - pyaramorph analyzer loads
